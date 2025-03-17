@@ -70,7 +70,6 @@ npm run start:prod
 ### Authentication
 - `POST /auth/register` - Register a new user
 - `POST /auth/login` - Login user and get JWT token
-- `GET /auth/profile` - Get user profile (protected route)
 
 ## Testing
 
