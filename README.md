@@ -68,7 +68,7 @@ npm run start:prod
 ## API Endpoints
 
 ### Authentication
-- `POST /auth/register` - Register a new user
+- `POST /auth/signup` - Register a new user
 - `POST /auth/login` - Login user and get JWT token
 
 ## Testing
