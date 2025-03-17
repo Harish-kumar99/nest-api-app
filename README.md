@@ -6,7 +6,7 @@ A robust authentication API built with NestJS, featuring JWT authentication, use
 
 - JWT-based authentication
 - User registration and login
-- Password hashing with bcrypt
+- Password hashing with crypto
 - MySQL database integration with TypeORM
 - Rate limiting for API endpoints
 - Input validation and transformation
