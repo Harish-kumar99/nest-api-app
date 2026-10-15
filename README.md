@@ -3,7 +3,7 @@
 A robust authentication API built with NestJS, featuring JWT authentication, user management, and database integration.
 
 ## Features
-
+ 
 - JWT-based authentication
 - User registration and login
 - Password hashing with crypto
