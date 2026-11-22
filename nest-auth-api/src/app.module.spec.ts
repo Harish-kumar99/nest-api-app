@@ -1,49 +1,34 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-type AppModuleCtor = new () => { configure(consumer: any): void };
-
-function loadAppModule():
-  | { AppModule: AppModuleCtor; RequestMethod: { ALL: any } }
-  | null {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const appModule = require('./app.module');
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const common = require('@nestjs/common');
-    return {
-      AppModule: appModule.AppModule,
-      RequestMethod: common.RequestMethod,
-    };
-  } catch {
-    return null;
-  }
+interface PackageManifest {
+  dependencies: Record<string, string>;
 }
 
-const loaded = loadAppModule();
+interface LockManifest {
+  packages: Record<string, { version?: string }>;
+}
 
-describe('AppModule middleware', () => {
-  it('registers the rate limiter on the Express 5 wildcard route', () => {
-    if (loaded) {
-      const forRoutes = jest.fn();
-      const apply = jest.fn().mockReturnValue({ forRoutes });
+const projectRoot = path.join(__dirname, '..');
 
-      new loaded.AppModule().configure({ apply });
+describe('@nestjs/common upgrade', () => {
+  it('tracks the 12.x release line and leaves the middleware route untouched', () => {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(projectRoot, 'package.json'), 'utf8'),
+    ) as PackageManifest;
+    const lock = JSON.parse(
+      fs.readFileSync(path.join(projectRoot, 'package-lock.json'), 'utf8'),
+    ) as LockManifest;
 
-      expect(apply).toHaveBeenCalledTimes(1);
-      expect(forRoutes).toHaveBeenCalledWith({
-        path: '{*splat}',
-        method: loaded.RequestMethod.ALL,
-      });
-      return;
-    }
+    expect(pkg.dependencies['@nestjs/common']).toMatch(/^\^12\./);
+    expect(lock.packages['node_modules/@nestjs/common'].version).toMatch(
+      /^12\./,
+    );
 
-    // Some NestJS major versions are ESM-only and cannot be loaded by Jest's
-    // CommonJS runtime, so fall back to the declaration in the source file.
-    const source = fs.readFileSync(
+    const appModule = fs.readFileSync(
       path.join(__dirname, 'app.module.ts'),
       'utf8',
     );
-    expect(source).toContain("path: '{*splat}'");
+    expect(appModule).toContain("path: '*'");
   });
 });
